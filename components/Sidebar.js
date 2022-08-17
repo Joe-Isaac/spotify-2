@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import {signOut, useSession} from "next-auth/react";
+import useSpotify from "../hooks/useSpotify"
 import {
     HomeIcon,
     SearchIcon,
@@ -9,17 +11,50 @@ import {
     LogoutIcon,
 } from "@heroicons/react/outline"
 
-import {signOut, useSession} from "next-auth/react"
+
+
 
 function Sidebar() {
     const { data: session, status} = useSession();
+    const [playLists, setPlayLists] = useState([]);
+    const spotifyApi = useSpotify();
 
-    console.log(session);
+    useEffect(() => {
+      if(spotifyApi.accessToken){
+        console.log("Access token is here")
+      }
+      else{
+        console.log("We dont have an access token yet")
+        spotifyApi.getUserPlaylists()
+        .then((data) => {
+            console.log("This meand we have an access token ",data)
+            setPlayLists(data.body.items);
+        })
+        .catch((err) =>
+        {
+            console.log("An error occured", err.message)
+        })
+      }
+
+    }, [session, spotifyApi])
+    
+
+    console.log(session, "session");
+    console.log(playLists, "Play list");
+
+
   return (
-    <div className='text-gray-500 p-5 text-sm border-r border-gray-900'>
-        <div className='space-y-4'>
+    <div className='text-gray-500 p-5 text-sm border-r
+     border-gray-900 overflow-y-scroll scrollbar-hide h-screen'>
+        <div className='space-y-4 h-screen '>
 
-        <button className='flex items-center space-x-2 hover:text-white ' onClick={()=> signOut()}>
+        <button className='flex items-center space-x-2 hover:text-white '
+        onClick={()=> {
+            console.log("Youre now being redirected");
+            signOut();
+            signOut({ callbackUrl: '/Login'})
+            // return NextResponse.redirect("http://localhost:3000/Login/");
+        }}>
         <LogoutIcon className='h-5 w-5'/>
         <p>LogOut</p>
         </button>
