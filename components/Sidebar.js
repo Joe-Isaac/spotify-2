@@ -10,6 +10,8 @@ import {
     HeartIcon,
     LogoutIcon,
 } from "@heroicons/react/outline"
+import { useRecoilState } from 'recoil';
+import {playlistIdState} from '../atoms/playlistAtom'
 
 
 
@@ -18,31 +20,19 @@ function Sidebar() {
     const { data: session, status} = useSession();
     const [playLists, setPlayLists] = useState([]);
     const spotifyApi = useSpotify();
-    const [userId, setUserId] = useState()
-
+    const [playlistId, setPlaylistId] = useRecoilState(playlistIdState);
+ 
     useEffect(() => {
       if(spotifyApi.getAccessToken()){
-        console.log("Access token is here", spotifyApi.getAccessToken());
-
-        spotifyApi.getMe().then((user) => {
-            console.log(user, "IS THE USER");
-
-            
-
-        spotifyApi.getUserPlaylists(user.body.id)
+        
+        spotifyApi.getUserPlaylists()
         .then((data) => {
-            console.log("User ID ",user.body.id)
             setPlayLists(data.body.items);
         })
         .catch((err) =>
         {
             console.log("An error occured", err.message)
         })
-            // dispatch({
-            //   type: "SET_USER",
-            //   user: user,
-            // });
-          });
       }
       else{
         console.log("We dont have an access token yet")
@@ -50,25 +40,17 @@ function Sidebar() {
     }}, [session, spotifyApi])
     
 
-    console.log(session, "session");
-    console.log(playLists, "Play list");
+    
+    
 
 
   return (
-    <div className='text-gray-500 p-5 text-sm border-r
-     border-gray-900 overflow-y-scroll scrollbar-hide h-screen'>
-        <div className='space-y-4 h-screen '>
+    <div className='text-gray-500 p-5 text-xs lg:text-sm 
+     border-r border-gray-900 overflow-y-scroll
+      scrollbar-hide h-screen sm:max-w-[12rem] 
+      lg:max-w-[15rem] hidden md:inline-flex'>
 
-        <button className='flex items-center space-x-2 hover:text-white '
-        onClick={()=> {
-            console.log("Youre now being redirected");
-            signOut();
-            signOut({ callbackUrl: '/Login'})
-            // return NextResponse.redirect("http://localhost:3000/Login/");
-        }}>
-        <LogoutIcon className='h-5 w-5'/>
-        <p>LogOut</p>
-        </button>
+        <div className='space-y-4 h-screen '>
 
         <button className='flex items-center space-x-2 hover:text-white '>
         <HomeIcon className='h-5 w-5'/>
@@ -108,24 +90,14 @@ function Sidebar() {
 
 
         {/** Play List comes here */}
-        <p className='cursor-pointer hover:text-white'>
-            Playlist name...
-        </p>
-        <p className='cursor-pointer hover:text-white'>
-            Playlist name...
-        </p>
-        <p className='cursor-pointer hover:text-white'>
-            Playlist name...
-        </p>
-        <p className='cursor-pointer hover:text-white'>
-            Playlist name...
-        </p>
-        <p className='cursor-pointer hover:text-white'>
-            Playlist name...
-        </p>
-        <p className='cursor-pointer hover:text-white'>
-            Playlist name...
-        </p>
+        {playLists.map((playlist) => (
+            <p className='flex items-center  space-x-2
+             hover:text-white cursor-pointer'
+             onClick={()=>{setPlaylistId(playlist.id)}}
+             key={playlist.id}>
+                {playlist.name}
+            </p>
+        ))}
 
         </div>
     </div>
