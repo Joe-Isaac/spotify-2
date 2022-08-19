@@ -15,8 +15,9 @@ useEffect(() => {
         signIn();
     }
 
-    spotifyApi.setAccessToken(session.user.acessToken);
-    console.log("Access token has been set here", session.user.setAccessToken)
+    console.log("Checking access token", session.user.accessToken);
+    spotifyApi.setAccessToken(session.user.accessToken);
+    console.log("We have set the access token", spotifyApi.getAccessToken());
     
   }
 

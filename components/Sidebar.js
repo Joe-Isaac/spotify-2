@@ -18,25 +18,36 @@ function Sidebar() {
     const { data: session, status} = useSession();
     const [playLists, setPlayLists] = useState([]);
     const spotifyApi = useSpotify();
+    const [userId, setUserId] = useState()
 
     useEffect(() => {
-      if(spotifyApi.accessToken){
-        console.log("Access token is here")
-      }
-      else{
-        console.log("We dont have an access token yet")
-        spotifyApi.getUserPlaylists()
+      if(spotifyApi.getAccessToken()){
+        console.log("Access token is here", spotifyApi.getAccessToken());
+
+        spotifyApi.getMe().then((user) => {
+            console.log(user, "IS THE USER");
+
+            
+
+        spotifyApi.getUserPlaylists(user.body.id)
         .then((data) => {
-            console.log("This meand we have an access token ",data)
+            console.log("User ID ",user.body.id)
             setPlayLists(data.body.items);
         })
         .catch((err) =>
         {
             console.log("An error occured", err.message)
         })
+            // dispatch({
+            //   type: "SET_USER",
+            //   user: user,
+            // });
+          });
       }
+      else{
+        console.log("We dont have an access token yet")
 
-    }, [session, spotifyApi])
+    }}, [session, spotifyApi])
     
 
     console.log(session, "session");
