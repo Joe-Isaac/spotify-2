@@ -1,16 +1,18 @@
-import React from 'react'
-import useSpotify from '../hooks/useSpotify';
-import {isPlayingState, currentTrackIdState} from "../atoms/songAtom";
+import {useState, useEffect} from 'react'
+import useSpotify from './useSpotify';
+import {currentTrackIdState} from "../atoms/songAtom";
+import {useRecoilState} from "recoil";
 
 function useSongInfo() {
     const spotifyApi = useSpotify();
-    const [currentTrackId, setCurrentTrackId] = 
+    const [currentIdTrack, setCurrentIdTrack] = 
     useRecoilState(currentTrackIdState);
+
     const [songInfo, setSongInfo] = useState(null);
 
     useEffect(() => {
       const fetchSongInfo = async () => {
-        if(currentTrackId){
+        if(currentIdTrack){
             const trackInfo = await fetch(
                 `https://api.spotify.com/v1/tracks/${currentIdTrack}`,
                 {
@@ -22,13 +24,13 @@ function useSongInfo() {
 
                 setSongInfo(trackInfo);
         }
-      }
+      };
     
-      return songInfo
-    }, [currentIdTrack, spotifyApi()])
+      fetchSongInfo();
+    }, [currentIdTrack, spotifyApi]);
     
 
-  return songInfo
+  return songInfo;
 }
 
 export default useSongInfo
